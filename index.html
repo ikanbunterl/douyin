@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Douyin Web Downloader</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { text-align: center; color: #333; }
+        input, select, textarea, button { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        button { background: #fe2c55; color: white; border: none; cursor: pointer; font-weight: bold; font-size: 16px; }
+        button:hover { background: #e0254b; }
+        .status { margin-top: 15px; padding: 10px; border-radius: 6px; text-align: center; display: none; }
+        .success { background: #d4edda; color: #155724; display: block; }
+        .error { background: #f8d7da; color: #721c24; display: block; }
+        details { margin-top: 15px; font-size: 13px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🎵 Douyin Downloader</h2>
+        <form id="downloadForm">
+            <input type="text" id="url" placeholder="Tempel link Douyin di sini..." required>
+            
+            <select id="type">
+                <option value="video">📹 Video (No Watermark)</option>
+                <option value="audio">🎵 Audio / MP3 Only</option>
+                <option value="images">🖼️ Gambar / Slide (Note)</option>
+            </select>
+
+            <details>
+                <summary><b>Pengaturan Lanjutan (Cookie)</b></summary>
+                <p>Tempel cookie browser jika video dibatasi/privat.</p>
+                <textarea id="cookies" rows="4" placeholder="# Netscape HTTP Cookie File..."></textarea>
+            </details>
+
+            <button type="submit">🚀 Mulai Download</button>
+        </form>
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        document.getElementById('downloadForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'status';
+            statusDiv.innerText = 'Memproses...';
+            statusDiv.style.display = 'block';
+
+            const payload = {
+                url: document.getElementById('url').value,
+                type: document.getElementById('type').value,
+                cookies: document.getElementById('cookies').value
+            };
+
+            try {
+                const res = await fetch('/api/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    statusDiv.className = 'status success';
+                    statusDiv.innerText = '✅ ' + data.message;
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.innerText = '❌ ' + data.detail;
+                }
+            } catch (err) {
+                statusDiv.className = 'status error';
+                statusDiv.innerText = '❌ Error koneksi ke server.';
+            }
+        };
+    </script>
+</body>
+</html>
